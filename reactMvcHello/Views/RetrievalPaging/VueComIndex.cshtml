@@ -1,0 +1,193 @@
+﻿
+@{
+    TempData["Title"] = "Vue.js - Display Tabular Data";
+    TempData["Description"] = "Display tabular data from database using Vue.js component."; 
+}
+
+<h2>@TempData["Title"]</h2>
+<p>@TempData["Description"]</p>
+
+@* HTML *@
+<div id="gridData" class="container">
+    <employee-grid-table data_url="/RetrievalPaging/GetEmployeeList"></employee-grid-table>
+</div>
+
+@section scripts {
+@* Bootstrap CSS : v3.3.6 *@
+@* jQuery : v2.2.0 *@
+@* Vue.js Library *@
+<script src="~/Scripts/vue.js"></script>
+
+@* 1. Paging component - GridPager template *@
+<script type="text/x-template" id="grid-ppager-template">
+    <ul class="pagination">
+        <li v-for="n in size" @* range array of number *@
+            v-on:click="$emit('on_page_changed', n)" @* events up. *@
+            v-bind:class="{ active : current_page == n }">
+            <a href="#">{{n}}</a>
+        </li>
+    </ul>
+</script>
+
+@* 2. Table row component - EmployeeGridRow template *@
+<script type="text/x-template" id="employee-grid-row-template">
+    <tr>
+        <td>{{item.FirstName}}</td>
+        <td>{{item.LastName}}</td>
+        <td>{{item.EMailID}}</td>
+        <td>{{item.City}}</td>
+        <td>{{item.Country}}</td>
+    </tr>
+</script>
+
+@* 3. Table component - EmployeeGridTable template *@
+<script type="text/x-template" id="employee-grid-table-template">
+    <div>
+        <table class="table table-bordered table-responsive">
+            <thead>
+                <tr>
+                    <th v-on:click="sortChanged('FirstName', Data.sortOrder)">
+                        First Name
+                        <i v-bind:class="_sortClass('FirstName')"></i>
+                    </th>
+                    <th v-on:click="sortChanged('LastName', Data.sortOrder)">
+                        Last Name
+                        <i v-bind:class="_sortClass('LastName')"></i>
+                    </th>
+                    <th v-on:click="sortChanged('EMailID', Data.sortOrder)">
+                        E-Mail
+                        <i v-bind:class="_sortClass('EMailID')"></i>
+                    </th>
+                    <th v-on:click="sortChanged('City', Data.sortOrder)">
+                        City
+                        <i v-bind:class="_sortClass('City')"></i>
+                    </th>
+                    <th v-on:click="sortChanged('Country', Data.sortOrder)">
+                        Country
+                        <i v-bind:class="_sortClass('Country')"></i>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @* {rows} *@
+                <tr is="employee-grid-row"
+                    v-for="item in Data.List"
+                    v-bind:item="item"></tr>
+            </tbody>
+        </table>
+
+        @* GridPager Componnet - pagination *@
+        <grid-pager v-bind:size="Data.totalPage"
+                    v-bind:current_page="Data.currentPage"
+                    v-on:on_page_changed="pageChanged">
+        </grid-pager>
+    </div>
+</script>
+
+<script type="text/javascript">
+
+    @* 1. Paging component - GridPager Componnet Registation *@
+    Vue.component("grid-pager", {
+        template: '#grid-ppager-template',
+        props: {
+            @* props down *@
+            size: {
+                type: Number,
+                required: true
+            },
+            current_page: {
+                type: Number
+            }
+        }
+    });
+
+    @* 2. Table row component - EmployeeGridRow *@
+    Vue.component("employee-grid-row", {
+        template: '#employee-grid-row-template',
+        props: ['item'] 
+    });
+
+    @* 3. Table component - EmployeeGridTable template *@
+    Vue.component("employee-grid-table", {
+        template: '#employee-grid-table-template',
+        props: {
+            data_url: {
+                type: String,
+                required: true
+            }
+        },
+        data() {
+            return {
+                @* view model *@
+                Data: {
+                    List: [],
+                    totalPage: 0,
+                    sortColumnName: null,
+                    sortOrder: null,
+                    currentPage: 1,
+                    pageSize: 3
+                }
+            }
+        },
+        methods: {
+            populateData: function () {
+                let $this = this;
+
+                @* prepare parameters *@
+                var params = {
+                    pageSize: this.Data.pageSize,
+                    currentPage: this.Data.currentPage
+                };
+
+                if (this.Data.sortColumnName)
+                    params.sortColumnName = this.Data.sortColumnName;
+
+                if (this.Data.sortOrder)
+                    params.sortOrder = this.Data.sortOrder;
+
+                @* console.log('populateData>>params', params); *@
+
+                @* Fetch data via ajax *@
+                $.ajax({
+                    url: $this.data_url,
+                    type: 'GET',
+                    data: params,
+                    success: function (data) {
+                        @* console.log('populateData>>data', data); *@
+                        $this.$data.Data = data;
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('populateData>>err', error);
+                        alert(error);
+                    }
+                });
+            },
+            @* event - pagination *@
+            pageChanged: function (pageNumber, e) {
+                this.Data.currentPage = pageNumber;
+                this.populateData();
+            },
+            @* event - sorting *@
+            sortChanged: function (sortColumnName, order, e) {
+                this.Data.sortColumnName = sortColumnName;
+                this.Data.currentPage = 1;
+                this.Data.sortOrder = order.toString().toLowerCase() == 'asc' ? 'desc' : 'asc';
+                this.populateData();
+            },
+            @* property for CSS class - sort icon on table header *@
+            _sortClass: function (filterName) {
+                return "fa fa-fw " + ((filterName == this.Data.sortColumnName) ? ("fa-sort-" + this.Data.sortOrder) : "fa-sort");
+            },
+        },
+        created: function () {
+            this.populateData();
+        }
+    });
+
+    @* Here we will create our first Vue.js app. *@
+    new Vue({
+        el: "#gridData"
+    });
+
+</script>
+}

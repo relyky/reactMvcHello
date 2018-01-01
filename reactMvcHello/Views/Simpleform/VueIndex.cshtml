@@ -1,0 +1,124 @@
+﻿
+@{
+    TempData["Title"] = "Create simple forms with validation in Vue.js";
+}
+
+@section styles {
+<style type="text/css">
+    .form-control.error {
+        border-color: red;
+        background-color: #FFF6F6;
+    }
+
+    span.error {
+        color: red;
+    }
+
+    .servermessage {
+        font-size: 32px;
+        margin-top: 20px;
+    }
+</style>
+}
+
+<h2>@TempData["Title"]</h2>
+
+<div class="container">
+    <div id="contactFormArea" v-cloak>
+        <form name="contactForm" novalidate>
+            <div class="form-group">
+                <label for="Fullname">Full Name:</label>
+                <input type="text" name="Fullname" v-validate="'required'" class="form-control" v-bind:class="{error:errors.has('Fullname')}" v-model.trim="contactData.Fullname" >
+                <span v-show="errors.has('Fullname')" class="error">{{ errors.first('Fullname') }}</span>
+            </div>
+            <div class="form-group">
+                <label for="Email">Email:</label>
+                <input type="email" name="Email" v-validate="'email'"  class="form-control" v-bind:class="{error:errors.has('Email')}" v-model.trim="contactData.Email">
+                <span v-show="errors.has('Email')" class="error">{{ errors.first('Email') }}</span>
+            </div>
+            <div class="form-group">
+                <label for="Message">Message:</label>
+                <textarea name="Message" v-validate="'required'" class="form-control" v-bind:class="{error:errors.has('Message')}" v-model.trim="contactData.Message"></textarea>
+                <span v-show="errors.has('Message')" class="error">{{ errors.first('Message') }}</span>
+            </div>
+            <button type="button" class="btn btn-default" v-on:click="handleSubmit">Submit</button>
+            <button type="button" class="btn btn-default" v-on:click="handleReset">Reset</button>
+            <p class="servermessage">{{ServerMessage}}</p>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+<script src="~/Scripts/vue.js"></script>
+<script src="~/Scripts/vee-validate/dist/vee-validate.js"></script>
+<script type="text/javascript">
+    //var emailRE = /^(([^<>()[\]\\.,;:\s@@\"]+(\.[^<>()[\]\\.,;:\s@@\"]+)*)|(\".+\"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+    Vue.use(VeeValidate);
+
+    new Vue({
+        el: "#contactFormArea",
+        data: {
+            @* view model / formData  *@
+            contactData: {
+                Fullname: '',
+                Email: '',
+                Message: '',
+            },
+            ServerMessage: ''
+        },
+        computed: {
+
+        },
+        methods: {
+            handleReset: function (e) {
+
+                //Will clear form here
+                this.$data.contactData = {
+                    Fullname: '',
+                    Email: '',
+                    Message: ''
+                };
+
+                // used to reset errors
+                setTimeout(() => {
+                    this.errors.clear();
+                }, 200);
+            },
+            // submit function
+            handleSubmit: function (e) {
+                let $this = this;
+
+                //Validate entire form here
+                $this.$validator.validateAll().then((result) => {
+                    if (!result) {
+                        $this.$data.ServerMessage = "輸入格式不正確。";
+                        return;
+                    }
+
+                    //after validation complete post to server
+                    let newContactData = this.$data.contactData;
+                    let urlPost = '/Simpleform/SaveContactData';
+                    $.ajax({
+                        type: "POST",
+                        url: urlPost,
+                        data: newContactData,
+                        success: function (data) {
+                            // show result message
+                            $this.$data.ServerMessage = data.message; 
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('handleSubmit>>error', xhr, status, error);
+                            alert('Error! Please try again');
+                        }
+                    });
+                });
+            }
+        },
+        created() {
+            //$("#EmailInput").prop('disabled', true);
+        }
+    });
+
+</script>
+}

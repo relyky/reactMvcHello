@@ -1,0 +1,86 @@
+﻿
+@{
+    TempData["Title"] = "Display tabular data from database using ReactJS";
+}
+
+<h2>@TempData["Title"]</h2>
+
+@* HTML *@
+<div id="gridData" class="container"></div>
+
+@* Bootstrap CSS : v3.3.6 *@
+@* jQuery : v2.2.0 *@
+@* ReactJS Library 0.14.6 *@
+<script src="~/Scripts/react.min.js"></script>
+<script src="~/Scripts/react-dom.min.js"></script>
+
+@* JSX converter (JSX to native javascript) *@
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>*@
+<script src="~/Scripts/browser.min.js"></script>
+
+@* ReactJS components *@
+<script type="text/babel">
+    @* Here we will create 2 react component. one for rows and another for table. *@
+    var EmployeeGridRow = React.createClass({
+        render : function() 
+        {
+            return (
+                <tr>
+                    <td>{this.props.item.FirstName}</td>
+                    <td>{this.props.item.LastName}</td>
+                    <td>{this.props.item.EMailID}</td>
+                    <td>{this.props.item.City}</td>
+                    <td>{this.props.item.Country}</td>
+                </tr>
+            );
+        }
+    });
+
+    var EmployeeGridTable = React.createClass({
+        getInitialState: function() 
+        {
+            return {
+                items: []
+            }
+        },
+        componentDidMount: function() 
+        {
+            @* Fetch data via ajax *@
+            $.get(this.props.dataUrl, function(data){
+                if(this.isMounted()) {
+                    this.setState({items: data});
+                }
+            }.bind(this)); 
+        },
+        render: function()
+        {
+            var rows = [];
+            this.state.items.forEach(function(item) {
+                rows.push(<EmployeeGridRow key={item.EmployeeID} item={item} />);
+            });
+
+            return (
+                <table className="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>E-Mail</th>
+                            <th>City</th>
+                            <th>Country</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows}
+                    </tbody>
+                </table>
+            );
+        }
+    });
+
+    ReactDOM.render(
+        <EmployeeGridTable dataUrl = "/Retrieval/GetEmployeeData" />,
+        document.getElementById('gridData')
+    );
+
+</script>

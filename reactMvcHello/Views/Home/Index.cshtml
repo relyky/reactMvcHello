@@ -1,0 +1,50 @@
+﻿
+@{
+    TempData["Title"] = "Hello World - ReactJS";
+}
+
+<h2>@TempData["Title"]</h2>
+
+@* HTML for show ReactJS component *@
+<div id="helloContainer"></div>
+
+@* ReactJS javascript (JSX) ccode *@
+
+    @* jQuery : v2.2.0 *@
+    @* ReactJS Library 0.14.6 *@
+    <script src="~/Scripts/react.min.js"></script>
+    <script src="~/Scripts/react-dom.min.js"></script>
+
+    @* JSX converter (JSX to native javascript) *@
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>*@
+    <script src="~/Scripts/browser.min.js"></script>
+
+@* Here we will create our first ReactJS component. *@
+<script type="text/babel">
+    var HelloComponent = React.createClass({
+        getInitialState : function() 
+        {
+            return {
+                serverMessage : 'Init'
+            };
+        },
+        componentDidMount : function() 
+        {
+            // fetch data from server
+            $.get('/Home/GetMessage', function(result) {
+                console.log(result);
+                if(this.isMounted) {
+                    this.setState({
+                        serverMessage : result.Data
+                    });
+                }
+            }.bind(this));
+        },
+        render : function() 
+        {
+            return (<h1>{this.state.serverMessage}</h1>);
+        }
+    });
+
+    ReactDOM.render(<HelloComponent/>, document.getElementById("helloContainer"));
+</script>

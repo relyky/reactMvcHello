@@ -1,0 +1,42 @@
+﻿
+@{
+    TempData["Title"] = "Create simple forms with validation in React JS";
+}
+
+<h2>@TempData["Title"]</h2>
+
+<div class="container">
+    <div id="contactFormArea">
+
+    </div>
+</div>
+
+@* Bootstrap CSS : v3.3.6 *@
+@* jQuery : v2.2.0 *@
+@* ReactJS Library 0.14.6 *@
+<script src="~/Scripts/react.min.js"></script>
+<script src="~/Scripts/react-dom.min.js"></script>
+
+@* JSX converter (JSX to native javascript) *@
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>*@
+<script src="~/Scripts/browser.min.js"></script>
+
+@* our react component *@
+<script src="~/Scripts/ourReactForms/ContactForm.js" type="text/babel"></script>
+
+<style type="text/css">
+    .form-control.error {
+        border-color: red;
+        background-color: #FFF6F6;
+    }
+
+    span.error {
+        color:red;
+    }
+
+    .servermessage {
+        font-size: 32px;
+        margin-top: 20px;
+    }
+
+</style>

@@ -1,0 +1,35 @@
+﻿
+@{
+    TempData["Title"] = "Hello World - Vue.js";
+}
+
+<h2>@TempData["Title"]</h2>
+
+@* Vue.js app *@
+<div id="app" v-cloak>
+    <h1>{{serverMessage}}</h1>
+</div>
+
+@section scripts {
+
+@* Vue.js Library *@
+<script src="~/Scripts/vue.min.js"></script>
+<script type="text/javascript">
+
+    @* Here we will create our first Vue.js app. *@
+    new Vue({
+        el:"#app",
+        data: {
+            serverMessage: "init"
+        },
+        created: function () {
+            let $this = this;
+            // fetch data from server
+            $.get('/Home/GetMessage', function(result) {
+                $this.serverMessage = result.Data;
+            });
+        }
+    });
+
+</script>
+}

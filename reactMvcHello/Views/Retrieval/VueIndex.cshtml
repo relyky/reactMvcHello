@@ -1,0 +1,59 @@
+﻿
+@{
+    TempData["Title"] = "Display tabular data from database using Vue.js";
+}
+
+<h2>@TempData["Title"]</h2>
+
+@* HTML *@
+<div id="gridData" class="container">
+    <table class="table table-bordered table-responsive">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>E-Mail</th>
+                <th>City</th>
+                <th>Country</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* {rows} *@
+            <tr v-for="item in items">
+                <td>{{item.FirstName}}</td>
+                <td>{{item.LastName}}</td>
+                <td>{{item.EMailID}}</td>
+                <td>{{item.City}}</td>
+                <td>{{item.Country}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+@section scripts {
+@* Bootstrap CSS : v3.3.6 *@
+@* jQuery : v2.2.0 *@
+@* Vue.js Library *@
+<script src="~/Scripts/vue.js"></script>
+<script type="text/javascript">
+
+    @* Here we will create our first Vue.js app. *@
+    new Vue({
+        el: "#gridData",
+        data: {
+            items: []
+        },
+        created: function () {
+            let $this = this;
+
+            @* Fetch data via ajax *@
+            let dataUrl = "/Retrieval/GetEmployeeData";
+            $.get(dataUrl, function(data){
+                $this.items = data;
+            }); 
+        }
+    });
+
+</script>
+}
