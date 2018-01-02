@@ -29,4 +29,7 @@
 練習的開發環境使用 Visual Studio 2015 開發，網站骨幹：MVC5 + jQuery 2.2.0 + Bootstrap 3.3.6。   
 除了把這四個練習以 ReactJS 實作完成；也使用Vue.js實作一模一樣的練習並作為比較。   
 
+## 補充
+若要在 MVC website 導入 React ，請參考此影片[React.js with ASP.NET MVC 5](https://www.youtube.com/watch?v=xq9XkCyWBTw)。
+
 (EOF)
